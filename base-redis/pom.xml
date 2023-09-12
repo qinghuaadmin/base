@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
 		<groupId>com.openkeji</groupId>
 		<artifactId>base</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>redis</artifactId>
+    <artifactId>base-redis</artifactId>
 	<name>base-redis</name>
-	<description>base-redis</description>
+	<description>redis缓存操作相关</description>
+
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.maven-compiler-plugin.version>3.5.1</maven.maven-compiler-plugin.version>
+    </properties>
 
 	<dependencies>
 		<dependency>
