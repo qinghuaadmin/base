@@ -1,7 +1,7 @@
 package com.openkeji.redis.lock.factory.impl;
 
-import cn.sino.msg.notice.center.common.redis.lock.model.RedissonLockWrapper;
-import cn.sino.msg.notice.center.common.redis.lock.factory.DistributedLockFactory;
+import com.openkeji.redis.lock.factory.DistributedLockFactory;
+import com.openkeji.redis.lock.model.RedissonLockWrapper;
 import org.redisson.api.RedissonClient;
 
 /**

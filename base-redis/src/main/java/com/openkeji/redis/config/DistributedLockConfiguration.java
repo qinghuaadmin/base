@@ -1,20 +1,28 @@
 package com.openkeji.redis.config;
 
-
+import com.openkeji.redis.lock.DistributedLockTemplate;
 import com.openkeji.redis.lock.factory.DistributedLockFactory;
 import com.openkeji.redis.lock.factory.impl.DistributedLockFactoryImpl;
-import com.openkeji.redis.lock.factory.impl.DistributedLockTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
- * @program: sino-msg-notice-center
+ * @program: base
  * @description:
  * @author: houqh
- * @create: 2023-07-31
+ * @create: 2023-09-19
  */
-public class SinoDistributedLockConfiguration {
+
+@Slf4j
+@RefreshScope
+@Configuration
+@Import({OPRedissonConfiguration.class})
+public class DistributedLockConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
