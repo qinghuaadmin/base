@@ -16,6 +16,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.ClientResourcesBuilderCustomizer;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
+import org.springframework.boot.autoconfigure.data.redis.OPRedisConnectionConfiguration;
+import org.springframework.boot.autoconfigure.data.redis.RedisConnectionConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -45,7 +47,7 @@ import java.time.Duration;
 @ConditionalOnClass({RedisClient.class})
 @EnableConfigurationProperties(RedisProperties.class)
 @ConditionalOnProperty(name = {"spring.redis.client-type"}, havingValue = "lettuce", matchIfMissing = true)
-public class LettuceConnectionConfiguration extends RedisConnectionConfiguration {
+public class LettuceConnectionConfiguration extends OPRedisConnectionConfiguration {
 
     @PostConstruct
     public void init() {
@@ -155,6 +157,7 @@ public class LettuceConnectionConfiguration extends RedisConnectionConfiguration
     }
 
     private void customizeConfigurationFromUrl(LettuceClientConfiguration.LettuceClientConfigurationBuilder builder) {
+        final OPRedisConnectionConfiguration.ConnectionInfo connectionInfo1 = parseUrl(getProperties().getUrl());
         ConnectionInfo connectionInfo = parseUrl(getProperties().getUrl());
         if (connectionInfo.isUseSsl()) {
             builder.useSsl();
