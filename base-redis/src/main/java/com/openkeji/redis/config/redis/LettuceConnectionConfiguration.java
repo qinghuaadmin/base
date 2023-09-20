@@ -17,7 +17,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.ClientResourcesBuilderCustomizer;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import org.springframework.boot.autoconfigure.data.redis.OPRedisConnectionConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisConnectionConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -54,16 +53,16 @@ public class LettuceConnectionConfiguration extends OPRedisConnectionConfigurati
         log.info("[OPLettuceConnectionConfiguration.init] LettuceConnectionConfiguration init successful");
     }
 
-    LettuceConnectionConfiguration(RedisProperties properties,
-                                   ObjectProvider<RedisStandaloneConfiguration> standaloneConfigurationProvider,
-                                   ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
-                                   ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
+    public LettuceConnectionConfiguration(RedisProperties properties,
+                                          ObjectProvider<RedisStandaloneConfiguration> standaloneConfigurationProvider,
+                                          ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
+                                          ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
         super(properties, standaloneConfigurationProvider, sentinelConfigurationProvider, clusterConfigurationProvider);
     }
 
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean(ClientResources.class)
-    DefaultClientResources lettuceClientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
+    public DefaultClientResources lettuceClientResources(ObjectProvider<ClientResourcesBuilderCustomizer> customizers) {
         DefaultClientResources.Builder builder = DefaultClientResources.builder();
         customizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
         return builder.build();
@@ -71,7 +70,7 @@ public class LettuceConnectionConfiguration extends OPRedisConnectionConfigurati
 
     @Bean
     @ConditionalOnMissingBean(RedisConnectionFactory.class)
-    LettuceConnectionFactory redisConnectionFactory(
+    public LettuceConnectionFactory redisConnectionFactory(
             ObjectProvider<LettuceClientConfigurationBuilderCustomizer> builderCustomizers,
             ClientResources clientResources) {
         LettuceClientConfiguration clientConfig = getLettuceClientConfiguration(builderCustomizers, clientResources,
@@ -157,8 +156,7 @@ public class LettuceConnectionConfiguration extends OPRedisConnectionConfigurati
     }
 
     private void customizeConfigurationFromUrl(LettuceClientConfiguration.LettuceClientConfigurationBuilder builder) {
-        final OPRedisConnectionConfiguration.ConnectionInfo connectionInfo1 = parseUrl(getProperties().getUrl());
-        ConnectionInfo connectionInfo = parseUrl(getProperties().getUrl());
+        ConnectionInfo connectionInfo = parseUrlOverride(getProperties().getUrl());
         if (connectionInfo.isUseSsl()) {
             builder.useSsl();
         }
