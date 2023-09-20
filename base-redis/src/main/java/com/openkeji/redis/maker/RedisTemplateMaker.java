@@ -16,9 +16,12 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.openkeji.redis.manager.OPRedisTemplate;
+import com.openkeji.redis.manager.OPStringRedisTemplate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -56,7 +59,7 @@ public class RedisTemplateMaker {
     }
 
     public static RedisTemplate<String, Object> makeRedisTemplate(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
-        final RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        final OPRedisTemplate<String, Object> redisTemplate = new OPRedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
         // Jackson2JsonRedisSerializer序列化
@@ -75,6 +78,10 @@ public class RedisTemplateMaker {
     }
 
     public static StringRedisTemplate makeStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return new StringRedisTemplate(redisConnectionFactory);
+        final OPStringRedisTemplate opStringRedisTemplate = new OPStringRedisTemplate(redisConnectionFactory);
+
+        final BoundValueOperations<String, String> aa = opStringRedisTemplate.boundValueOps("aa");
+
+        return new OPStringRedisTemplate(redisConnectionFactory);
     }
 }

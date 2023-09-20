@@ -29,53 +29,51 @@ public class OPDefaultValueOperations<K, V> extends DefaultValueOperations<K, V>
 
     @Override
     public V get(Object key) {
-        return execute(new ValueDeserializingRedisCallback(key) {
 
-            @Override
+        return this.execute(new AbstractOperations<K, V>.ValueDeserializingRedisCallback(key) {
             protected byte[] inRedis(byte[] rawKey, RedisConnection connection) {
-                byte[] results = connection.get(rawKey);
-                RedisBodyUtils.validate(results, key);
-                return results;
+                final byte[] bytes = connection.get(rawKey);
+                RedisBodyUtils.validate(bytes, key);
+                return bytes;
             }
-        }, true);
+        });
     }
 
     @Override
     public V getAndSet(K key, V newValue) {
-        byte[] rawValue = rawValue(newValue);
-        return execute(new ValueDeserializingRedisCallback(key) {
 
-            @Override
+        final byte[] rawValue = this.rawValue(newValue);
+        return this.execute(new AbstractOperations<K, V>.ValueDeserializingRedisCallback(key) {
             protected byte[] inRedis(byte[] rawKey, RedisConnection connection) {
-                byte[] results = connection.getSet(rawKey, rawValue);
-                RedisBodyUtils.validate(results, key);
-                return results;
+                final byte[] bytes = connection.getSet(rawKey, rawValue);
+                RedisBodyUtils.validate(bytes, key);
+                return bytes;
             }
-        }, true);
+        });
     }
 
     @Override
     public void set(K key, V value) {
+
         byte[] rawValue = rawValue(value);
         RedisBodyUtils.validate(rawValue, key);
         execute(new ValueDeserializingRedisCallback(key) {
-
             @Override
             protected byte[] inRedis(byte[] rawKey, RedisConnection connection) {
                 connection.set(rawKey, rawValue);
                 return null;
             }
-        }, true);
+        });
     }
 
     @Override
     public void set(K key, V value, long timeout, TimeUnit unit) {
+
         byte[] rawKey = rawKey(key);
         byte[] rawValue = rawValue(value);
 
         RedisBodyUtils.validate(rawValue, key);
         execute(new RedisCallback<Object>() {
-
             @Override
             public Object doInRedis(RedisConnection connection) throws DataAccessException {
 
@@ -102,6 +100,6 @@ public class OPDefaultValueOperations<K, V> extends DefaultValueOperations<K, V>
                 return !failed;
             }
 
-        }, true);
+        });
     }
 }

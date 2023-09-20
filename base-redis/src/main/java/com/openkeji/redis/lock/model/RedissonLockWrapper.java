@@ -2,16 +2,10 @@ package com.openkeji.redis.lock.model;
 
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class RedissonLockWrapper implements Closeable {
-    private static final Logger logger = LoggerFactory.getLogger(RedissonLockWrapper.class);
+public class RedissonLockWrapper implements AutoCloseable {
     private boolean locked = false;
     private final RLock rLock;
 
@@ -30,7 +24,7 @@ public class RedissonLockWrapper implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (locked) {
             try {
                 rLock.unlock();

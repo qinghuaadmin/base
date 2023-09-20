@@ -1,6 +1,7 @@
 package com.openkeji.redis.manager;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 /**
@@ -11,8 +12,12 @@ import org.springframework.data.redis.core.RedisTemplate;
  */
 @SuppressWarnings("all")
 @RequiredArgsConstructor
-public abstract class AbstractCacheManager {
+public abstract class AbstractCacheManager implements RedisKeyPrefix {
 
-    private final RedisTemplate redisTemplate;
+    @Autowired
+    protected RedisTemplate redisTemplate;
 
+    final protected String getCacheKeyPrefix() {
+        return getRedisKeyPrefix();
+    }
 }
