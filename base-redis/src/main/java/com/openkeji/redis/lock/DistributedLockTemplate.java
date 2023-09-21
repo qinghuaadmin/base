@@ -3,9 +3,9 @@ package com.openkeji.redis.lock;
 import com.openkeji.redis.exception.TryAcquireLockTimeOutException;
 import com.openkeji.redis.lock.factory.DistributedLockFactory;
 import com.openkeji.redis.lock.model.RedissonLockWrapper;
+import com.openkeji.redis.manager.AbstractRedisKeyPrefix;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
@@ -29,14 +29,14 @@ public class DistributedLockTemplate {
         this.distributedLockFactory = distributedLockFactory;
     }
 
-    public <T> T executeWithRLock(DistributedLockKeyPrefix lockKeyPrefix,
+    public <T> T executeWithRLock(AbstractRedisKeyPrefix lockKeyPrefix,
                                   String key,
                                   Function<T> function) {
         return this.executeWithRLock(lockKeyPrefix, key, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
     }
 
-    public <T> T executeWithRLock(DistributedLockKeyPrefix lockKeyPrefix, String key, long time, TimeUnit unit, Function<T> function) {
-        final String lockKey = MessageFormat.format("{0}:{1}", lockKeyPrefix.getDistributedLockKeyPrefix(), key);
+    public <T> T executeWithRLock(AbstractRedisKeyPrefix lockKeyPrefix, String key, long time, TimeUnit unit, Function<T> function) {
+        final String lockKey = MessageFormat.format("{0}:{1}", lockKeyPrefix.getKeyPrefix(), key);
         try (RedissonLockWrapper rLock = distributedLockFactory.getRLock(lockKey)) {
             final boolean tryAcquire = rLock.tryAcquire(time, unit);
             if (!tryAcquire) {

@@ -1,6 +1,5 @@
 package com.openkeji.redis;
 
-import com.openkeji.redis.lock.DistributedLockKeyPrefix;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

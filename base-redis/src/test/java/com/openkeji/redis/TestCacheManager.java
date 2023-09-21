@@ -1,7 +1,11 @@
 package com.openkeji.redis;
 
-import com.openkeji.redis.manager.AbstractCacheManager;
+import com.openkeji.redis.manager.AbstractValueCacheManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @program: base
@@ -11,12 +15,23 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @SuppressWarnings("all")
-public class TestCacheManager extends AbstractCacheManager {
+public class TestCacheManager extends AbstractValueCacheManager<String, String> {
 
+    @Autowired
+    private TestCacheManager testCacheManager;
+
+    @PostConstruct
+    public void init() {
+        expireTime = 10;
+        expireTimeUnit = TimeUnit.DAYS;
+        createObjectWriteLock = false;
+    }
 
     @Override
-    public String getRedisKeyPrefix() {
+    public String getKeyPrefix() {
         return null;
     }
 
+    public void test(){
+    }
 }
