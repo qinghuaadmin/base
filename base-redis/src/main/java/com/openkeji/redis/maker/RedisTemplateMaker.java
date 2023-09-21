@@ -64,11 +64,9 @@ public class RedisTemplateMaker {
 
         // Jackson2JsonRedisSerializer序列化
         final GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-
         // key序列化
         redisTemplate.setKeySerializer(RedisSerializer.string());
         redisTemplate.setHashKeySerializer(RedisSerializer.string());
-
         // value序列化
         redisTemplate.setValueSerializer(jsonSerializer);
         redisTemplate.setHashValueSerializer(jsonSerializer);
@@ -78,10 +76,6 @@ public class RedisTemplateMaker {
     }
 
     public static StringRedisTemplate makeStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        final OPStringRedisTemplate opStringRedisTemplate = new OPStringRedisTemplate(redisConnectionFactory);
-
-        final BoundValueOperations<String, String> aa = opStringRedisTemplate.boundValueOps("aa");
-
         return new OPStringRedisTemplate(redisConnectionFactory);
     }
 }

@@ -1,8 +1,6 @@
 package com.openkeji.redis.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.openkeji.redis.config.redis.LettuceConnectionConfiguration;
 import com.openkeji.redis.maker.RedisTemplateMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

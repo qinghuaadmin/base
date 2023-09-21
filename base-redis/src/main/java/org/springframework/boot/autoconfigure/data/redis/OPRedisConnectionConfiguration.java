@@ -5,6 +5,9 @@ import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * @program: base
  * @description: OPRedisConnectionConfiguration
@@ -18,5 +21,71 @@ public class OPRedisConnectionConfiguration extends RedisConnectionConfiguration
                                              ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
                                              ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
         super(properties, standaloneConfigurationProvider, sentinelConfigurationProvider, clusterConfigurationProvider);
+    }
+
+
+    protected ConnectionInfo parseUrlOverride(String url) {
+        try {
+            URI uri = new URI(url);
+            String scheme = uri.getScheme();
+            if (!"redis".equals(scheme) && !"rediss".equals(scheme)) {
+                throw new RedisUrlSyntaxException(url);
+            }
+            boolean useSsl = ("rediss".equals(scheme));
+            String username = null;
+            String password = null;
+            if (uri.getUserInfo() != null) {
+                String candidate = uri.getUserInfo();
+                int index = candidate.indexOf(':');
+                if (index >= 0) {
+                    username = candidate.substring(0, index);
+                    password = candidate.substring(index + 1);
+                } else {
+                    password = candidate;
+                }
+            }
+            return new ConnectionInfo(uri, useSsl, username, password);
+        } catch (URISyntaxException ex) {
+            throw new RedisUrlSyntaxException(url, ex);
+        }
+    }
+
+    public static class ConnectionInfo {
+
+        private final URI uri;
+
+        private final boolean useSsl;
+
+        private final String username;
+
+        private final String password;
+
+        ConnectionInfo(URI uri, boolean useSsl, String username, String password) {
+            this.uri = uri;
+            this.useSsl = useSsl;
+            this.username = username;
+            this.password = password;
+        }
+
+        public boolean isUseSsl() {
+            return this.useSsl;
+        }
+
+        public String getHostName() {
+            return this.uri.getHost();
+        }
+
+        public int getPort() {
+            return this.uri.getPort();
+        }
+
+        public String getUsername() {
+            return this.username;
+        }
+
+        public String getPassword() {
+            return this.password;
+        }
+
     }
 }
