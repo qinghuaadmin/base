@@ -37,9 +37,9 @@ public class DistributedLockTemplate {
      * @return 执行结果
      */
     public <T> T executeWithRLock(AbstractKeyPrefix lockKeyPrefix,
-                                  String key,
-                                  Function<T> function) {
-        return this.executeWithRLock(lockKeyPrefix, key, Boolean.FALSE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
+                         String key,
+                         Function<T> function) {
+        return this.execute(lockKeyPrefix, key, Boolean.FALSE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
     }
 
     /**
@@ -52,10 +52,10 @@ public class DistributedLockTemplate {
     public <T> T executeWithFairRLock(AbstractKeyPrefix lockKeyPrefix,
                                       String key,
                                       Function<T> function) {
-        return this.executeWithRLock(lockKeyPrefix, key, Boolean.TRUE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
+        return this.execute(lockKeyPrefix, key, Boolean.TRUE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
     }
 
-    public <T> T executeWithRLock(AbstractKeyPrefix lockKeyPrefix, String key, boolean fair, long time, TimeUnit unit, Function<T> function) {
+    public <T> T execute(AbstractKeyPrefix lockKeyPrefix, String key, boolean fair, long time, TimeUnit unit, Function<T> function) {
         final String lockKey = MessageFormat.format("{0}:{1}", lockKeyPrefix.getKeyPrefix(), key);
         try (RedissonLockWrapper rLock = distributedLockFactory.getRLock(lockKey, fair)) {
             final boolean tryAcquire = rLock.tryAcquire(time, unit);

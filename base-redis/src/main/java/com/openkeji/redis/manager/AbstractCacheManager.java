@@ -34,8 +34,14 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
     /**
      * 默认过期时间 5分钟
      */
+    @Getter
     @Setter
     protected int expireTime = 5;
+
+    /**
+     * 默认过期时间单位
+     */
+    @Getter
     @Setter
     protected TimeUnit expireTimeUnit = TimeUnit.MINUTES;
 
@@ -48,7 +54,8 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
      * 更新过期时间
      */
     final protected void expire(PK id) {
-        getBoundKeyOperations(id).expire(expireTime, expireTimeUnit);
+        getBoundKeyOperations(id)
+                .expire(expireTime, expireTimeUnit);
     }
 
     /**
@@ -59,7 +66,8 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
      * @param expireTimeUnit
      */
     final protected void expire(PK id, long expireTime, TimeUnit expireTimeUnit) {
-        getBoundKeyOperations(id).expire(expireTime, expireTimeUnit);
+        getBoundKeyOperations(id)
+                .expire(expireTime, expireTimeUnit);
     }
 
     /**

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @create: 2023-09-21-08
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractValueCacheManager<V, PK extends Serializable> extends AbstractCacheManager<PK> {
+public abstract class AbstractValueCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
     @Autowired(required = false)
     private DistributedLockTemplate distributedLockTemplate;
@@ -52,11 +52,38 @@ public abstract class AbstractValueCacheManager<V, PK extends Serializable> exte
         super(DataType.STRING);
     }
 
+    /**
+     * - 从DB获取数据
+     * 子类覆写
+     */
+    protected V getObject(PK id) {
+        return null;
+    }
+
+    /**
+     * - 初始化DB数据
+     * 子类覆写
+     */
+    protected V createObject(PK id) {
+        return null;
+    }
+
+    /**
+     * 获取Operations
+     */
+    protected BoundValueOperations<PK, V> getBoundKeyOperations(PK id) {
+        final String fullCacheKey = this.makeFullCacheKey(id);
+        return redisTemplate.boundValueOps(fullCacheKey);
+    }
+
+    /**
+     * 从缓存读取数据
+     *
+     * @param id key
+     */
     public V get(PK id) {
         final BoundValueOperations<PK, V> operations = getBoundKeyOperations(id);
         V object = operations.get();
-
-        operations.increment(1);
 
         String penetrateProtectKey = null;
         if (object == null) {
@@ -84,9 +111,9 @@ public abstract class AbstractValueCacheManager<V, PK extends Serializable> exte
         }
 
         if (object == null) {
-            if (Boolean.TRUE.equals(penetrateProtectEnable)) {
+            if (Boolean.TRUE.equals(penetrateProtectEnable)) { // 赋占位值
                 assert penetrateProtectKey != null;
-                redisTemplate.opsForValue().set(penetrateProtectKey, "", penetrateProtectMillisecond, TimeUnit.MILLISECONDS);
+                redisTemplate.opsForValue().set(penetrateProtectKey, 1, penetrateProtectMillisecond, TimeUnit.MILLISECONDS);
             }
         } else {
             operations.set(object, expireTime, expireTimeUnit);
@@ -95,44 +122,72 @@ public abstract class AbstractValueCacheManager<V, PK extends Serializable> exte
     }
 
     /**
-     * 获取Operations
+     * 删除缓存穿透key
+     *
+     * @param id key
      */
-    protected BoundValueOperations<PK, V> getBoundKeyOperations(PK id) {
-        final String fullCacheKey = this.makeFullCacheKey(id);
-        return redisTemplate.boundValueOps(fullCacheKey);
+    final protected void deletePenetrateProtect(PK id) {
+        final String penetrateProtectKey = MessageFormat.format(PENETRATE_PROTECT_KEY_TPL, id);
+        redisTemplate.delete(penetrateProtectKey);
     }
 
     /**
-     * - 从DB获取数据
-     * 子类覆写
-     */
-    protected V getObject(PK id) {
-        return null;
-    }
-
-    /**
-     * - 初始化DB数据
-     * 子类覆写
-     */
-    protected V createObject(PK id) {
-        return null;
-    }
-
-    /**
-     * 自增
+     * 整数-自增
+     *
      * @param id key
      */
     public Long increment(PK id) {
-       return increment(id,1);
+        return increment(id, 1);
     }
 
     /**
-     * 自增
-     * @param id key
+     * 整数-自增
+     *
+     * @param id   key
      * @param step 步长
      */
     public Long increment(PK id, long step) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.increment(step);
+    }
+
+    /**
+     * 更新时，自动续期
+     */
+    protected boolean updateExpireTimeWhenUpdate() {
+        return Boolean.TRUE;
+    }
+
+    /**
+     * 更新
+     *
+     * @param id     key
+     * @param object obj
+     */
+    public void update(PK id, V object) {
+        update(id, object, getExpireTime(), getExpireTimeUnit());
+    }
+
+    /**
+     * 更新
+     *
+     * @param id             key
+     * @param object         obj
+     * @param expireTime     过期时长
+     * @param expireTimeUnit 过期时长时间单位
+     */
+    public void update(PK id, V object, int expireTime, TimeUnit expireTimeUnit) {
+        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        if (updateExpireTimeWhenUpdate()) {
+            boundKeyOperations.set(object, expireTime, expireTimeUnit);
+        } else {
+            if (Boolean.TRUE.equals(hasKey(id))) {
+                boundKeyOperations.set(object);
+            } else {
+                boundKeyOperations.set(object, expireTime, expireTimeUnit);
+            }
+        }
+        // 更新之后,删除缓存穿透key
+        deletePenetrateProtect(id);
     }
 }
