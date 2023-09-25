@@ -108,7 +108,7 @@ public abstract class AbstractListCacheManager<PK extends Serializable, V> exten
         return null;
     }
 
-    public V leftPop(PK id,) {
+    public V leftPop(PK id) {
         return null;
     }
 
@@ -129,14 +129,17 @@ public abstract class AbstractListCacheManager<PK extends Serializable, V> exten
     }
 
     public V rightPop(PK id, long timeout, TimeUnit unit) {
-        return null;
+        final BoundListOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        return boundKeyOperations.rightPop(timeout, unit);
     }
 
     public V leftPop(PK id, Duration timeout) {
-        return BoundListOperations.super.leftPop(timeout);
+        final BoundListOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        return boundKeyOperations.leftPop(timeout);
     }
 
     public V rightPop(PK id, Duration timeout) {
-        return BoundListOperations.super.rightPop(timeout);
+        final BoundListOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        return boundKeyOperations.rightPop(timeout);
     }
 }
