@@ -41,7 +41,7 @@
     </dependencies>
 
     <build>
-        <finalName>base-redis</finalName>
+        <finalName>base-normal</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

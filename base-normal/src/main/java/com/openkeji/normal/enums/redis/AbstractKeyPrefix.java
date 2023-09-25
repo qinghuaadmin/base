@@ -1,6 +1,6 @@
-package com.openkeji.redis.manager;
+package com.openkeji.normal.enums.redis;
 
-public interface AbstractRedisKeyPrefix {
+public interface AbstractKeyPrefix {
     /**
      * 注册key前缀
      *

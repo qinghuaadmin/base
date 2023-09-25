@@ -1,6 +1,9 @@
 package com.openkeji.redis.manager;
 
+import com.openkeji.normal.enums.redis.AbstractKeyPrefix;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.BoundKeyOperations;
@@ -17,32 +20,46 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 @RequiredArgsConstructor
-public abstract class AbstractCacheManager<PK extends Serializable> implements AbstractRedisKeyPrefix {
+public abstract class AbstractCacheManager<PK extends Serializable> implements AbstractKeyPrefix {
+
     @Autowired
     protected RedisTemplate redisTemplate;
 
     /**
      * 缓存类型
      */
+    @Getter
     private final DataType dataType;
 
     /**
-     * 默认过期时间 10分钟
+     * 默认过期时间 5分钟
      */
-    protected int expireTime = 10;
+    @Setter
+    protected int expireTime = 5;
+    @Setter
     protected TimeUnit expireTimeUnit = TimeUnit.MINUTES;
 
     /**
-     * 获取OPS
+     * 获取BoundKeyOperations
      */
-    protected abstract BoundKeyOperations getOperations(PK id);
+    protected abstract BoundKeyOperations getBoundKeyOperations(PK id);
 
     /**
      * 更新过期时间
      */
     final protected void expire(PK id) {
-        final String fullCacheKey = makeFullCacheKey(id);
-        redisTemplate.expire(fullCacheKey, expireTime, expireTimeUnit);
+        getBoundKeyOperations(id).expire(expireTime, expireTimeUnit);
+    }
+
+    /**
+     * 更新过期时间
+     *
+     * @param id
+     * @param expireTime
+     * @param expireTimeUnit
+     */
+    final protected void expire(PK id, long expireTime, TimeUnit expireTimeUnit) {
+        getBoundKeyOperations(id).expire(expireTime, expireTimeUnit);
     }
 
     /**

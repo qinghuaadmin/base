@@ -1,9 +1,9 @@
 package com.openkeji.redis.lock;
 
-import com.openkeji.redis.exception.TryAcquireLockTimeOutException;
+import com.openkeji.normal.enums.redis.AbstractKeyPrefix;
+import com.openkeji.normal.exception.TryAcquireLockTimeOutException;
 import com.openkeji.redis.lock.factory.DistributedLockFactory;
 import com.openkeji.redis.lock.model.RedissonLockWrapper;
-import com.openkeji.redis.manager.AbstractRedisKeyPrefix;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.MessageFormat;
@@ -29,15 +29,35 @@ public class DistributedLockTemplate {
         this.distributedLockFactory = distributedLockFactory;
     }
 
-    public <T> T executeWithRLock(AbstractRedisKeyPrefix lockKeyPrefix,
+    /**
+     * 非公平锁
+     * @param lockKeyPrefix 锁前缀
+     * @param key 锁key
+     * @param function 锁代码块
+     * @return 执行结果
+     */
+    public <T> T executeWithRLock(AbstractKeyPrefix lockKeyPrefix,
                                   String key,
                                   Function<T> function) {
-        return this.executeWithRLock(lockKeyPrefix, key, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
+        return this.executeWithRLock(lockKeyPrefix, key, Boolean.FALSE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
     }
 
-    public <T> T executeWithRLock(AbstractRedisKeyPrefix lockKeyPrefix, String key, long time, TimeUnit unit, Function<T> function) {
+    /**
+     * 公平锁
+     * @param lockKeyPrefix 锁前缀
+     * @param key 锁key
+     * @param function 锁代码块
+     * @return 执行结果
+     */
+    public <T> T executeWithFairRLock(AbstractKeyPrefix lockKeyPrefix,
+                                      String key,
+                                      Function<T> function) {
+        return this.executeWithRLock(lockKeyPrefix, key, Boolean.TRUE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
+    }
+
+    public <T> T executeWithRLock(AbstractKeyPrefix lockKeyPrefix, String key, boolean fair, long time, TimeUnit unit, Function<T> function) {
         final String lockKey = MessageFormat.format("{0}:{1}", lockKeyPrefix.getKeyPrefix(), key);
-        try (RedissonLockWrapper rLock = distributedLockFactory.getRLock(lockKey)) {
+        try (RedissonLockWrapper rLock = distributedLockFactory.getRLock(lockKey, fair)) {
             final boolean tryAcquire = rLock.tryAcquire(time, unit);
             if (!tryAcquire) {
                 throw new TryAcquireLockTimeOutException(MessageFormat.format("try acquire lock timeout {0}", lockKey));

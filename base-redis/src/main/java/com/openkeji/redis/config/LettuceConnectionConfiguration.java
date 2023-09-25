@@ -50,7 +50,7 @@ public class LettuceConnectionConfiguration extends OPRedisConnectionConfigurati
 
     @PostConstruct
     public void init() {
-        log.info("[OPLettuceConnectionConfiguration.init] LettuceConnectionConfiguration init successful");
+        log.info("[OPLettuceConnectionConfiguration.init] init successful");
     }
 
     LettuceConnectionConfiguration(RedisProperties properties,

@@ -56,7 +56,7 @@ public class OPRedissonConfiguration {
 
     @PostConstruct
     public void init() {
-        log.info("[OPRedissonConfiguration.init] OPRedissonConfiguration init successful");
+        log.info("[OPRedissonConfiguration.init] init successful");
     }
 
     private static final String REDIS_PROTOCOL_PREFIX = "redis://";
