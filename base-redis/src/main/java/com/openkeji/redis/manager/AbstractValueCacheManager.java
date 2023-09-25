@@ -1,7 +1,7 @@
 package com.openkeji.redis.manager;
 
 import com.openkeji.normal.enums.redis.CommonCacheNameEnum;
-import com.openkeji.normal.enums.redis.CommonDistributedLockKeyPrefixEnum;
+import com.openkeji.normal.enums.redis.CommonDistributedLockCacheNamePrefixEnum;
 import com.openkeji.redis.lock.DistributedLockTemplate;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     /**
      * 穿透保护key
      */
-    private static final String PENETRATE_PROTECT_KEY_TPL = CommonCacheNameEnum.BASE_PENETRATE_PROTECT.getKeyPrefix() + "{0}";
+    private static final String PENETRATE_PROTECT_KEY_TPL = CommonCacheNameEnum.BASE_PENETRATE_PROTECT.getCacheNamePrefix() + "{0}";
 
     /**
      * 悲观锁实现
@@ -99,7 +99,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
                 if (Boolean.FALSE.equals(createObjectWriteLock)) {
                     object = createObject(id);
                 } else {
-                    object = distributedLockTemplate.executeWithRLock(CommonDistributedLockKeyPrefixEnum.BASE_CREATEOBJECT_WRITELOCK, String.valueOf(id), () -> {
+                    object = distributedLockTemplate.executeWithRLock(CommonDistributedLockCacheNamePrefixEnum.BASE_CREATEOBJECT_WRITELOCK, String.valueOf(id), () -> {
                         final V obj = getObject(id);
                         if (obj != null) {
                             return obj;

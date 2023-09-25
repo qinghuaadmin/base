@@ -1,6 +1,6 @@
 package com.openkeji.redis.lock;
 
-import com.openkeji.normal.enums.redis.AbstractKeyPrefix;
+import com.openkeji.normal.enums.redis.AbstractCacheNamePrefix;
 import com.openkeji.normal.exception.TryAcquireLockTimeOutException;
 import com.openkeji.redis.lock.factory.DistributedLockFactory;
 import com.openkeji.redis.lock.model.RedissonLockWrapper;
@@ -36,9 +36,9 @@ public class DistributedLockTemplate {
      * @param function 锁代码块
      * @return 执行结果
      */
-    public <T> T executeWithRLock(AbstractKeyPrefix lockKeyPrefix,
-                         String key,
-                         Function<T> function) {
+    public <T> T executeWithRLock(AbstractCacheNamePrefix lockKeyPrefix,
+                                  String key,
+                                  Function<T> function) {
         return this.execute(lockKeyPrefix, key, Boolean.FALSE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
     }
 
@@ -49,14 +49,14 @@ public class DistributedLockTemplate {
      * @param function 锁代码块
      * @return 执行结果
      */
-    public <T> T executeWithFairRLock(AbstractKeyPrefix lockKeyPrefix,
+    public <T> T executeWithFairRLock(AbstractCacheNamePrefix lockKeyPrefix,
                                       String key,
                                       Function<T> function) {
         return this.execute(lockKeyPrefix, key, Boolean.TRUE, DEFAULT_ACQUIRE_TIME, DEFAULT_ACQUIRE_TIME_UNIT, function);
     }
 
-    public <T> T execute(AbstractKeyPrefix lockKeyPrefix, String key, boolean fair, long time, TimeUnit unit, Function<T> function) {
-        final String lockKey = MessageFormat.format("{0}:{1}", lockKeyPrefix.getKeyPrefix(), key);
+    public <T> T execute(AbstractCacheNamePrefix lockKeyPrefix, String key, boolean fair, long time, TimeUnit unit, Function<T> function) {
+        final String lockKey = MessageFormat.format("{0}:{1}", lockKeyPrefix.getCacheNamePrefix(), key);
         try (RedissonLockWrapper rLock = distributedLockFactory.getRLock(lockKey, fair)) {
             final boolean tryAcquire = rLock.tryAcquire(time, unit);
             if (!tryAcquire) {

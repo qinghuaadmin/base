@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CommonDistributedLockKeyPrefixEnum implements BaseStringEnum, AbstractKeyPrefix {
+public enum CommonDistributedLockCacheNamePrefixEnum implements BaseStringEnum, AbstractCacheNamePrefix {
 
     BASE_CREATEOBJECT_WRITELOCK("base", "createobject:write", "创建缓存写锁"),
     ;
@@ -30,7 +30,7 @@ public enum CommonDistributedLockKeyPrefixEnum implements BaseStringEnum, Abstra
     private final String description;
 
     @Override
-    public String getKeyPrefix() {
+    public String getCacheNamePrefix() {
         return keyGroup + ":" + key + ":";
     }
 

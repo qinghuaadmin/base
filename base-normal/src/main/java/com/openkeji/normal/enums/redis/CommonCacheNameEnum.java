@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum CommonCacheNameEnum implements BaseStringEnum, AbstractKeyPrefix {
+public enum CommonCacheNameEnum implements BaseStringEnum, AbstractCacheNamePrefix {
 
     BASE_PENETRATE_PROTECT("base","penetrate:protect",""),
             ;
@@ -30,7 +30,7 @@ public enum CommonCacheNameEnum implements BaseStringEnum, AbstractKeyPrefix {
     private final String description;
 
     @Override
-    public String getKeyPrefix() {
+    public String getCacheNamePrefix() {
         return keyGroup + ":" + key + ":";
     }
 

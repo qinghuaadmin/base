@@ -1,6 +1,6 @@
 package com.openkeji.redis.manager;
 
-import com.openkeji.normal.enums.redis.AbstractKeyPrefix;
+import com.openkeji.normal.enums.redis.AbstractCacheNamePrefix;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 @RequiredArgsConstructor
-public abstract class AbstractCacheManager<PK extends Serializable> implements AbstractKeyPrefix {
+public abstract class AbstractCacheManager<PK extends Serializable> implements AbstractCacheNamePrefix {
 
     @Autowired
     protected RedisTemplate redisTemplate;
@@ -90,14 +90,14 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
      * 获取缓存key前缀
      */
     final protected String getCacheKeyPrefix() {
-        return getKeyPrefix();
+        return getCacheNamePrefix();
     }
 
     /**
      * 拼接完整key
      */
     final protected String makeFullCacheKey(PK id) {
-        final String cacheKeyPrefix = this.getCacheKeyPrefix();
-        return cacheKeyPrefix + id;
+        final String prefix = this.getCacheKeyPrefix();
+        return prefix + id;
     }
 }

@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class CommonConstants {
 
     public static final String YMD = "yyyy-MM-dd";
+    public static final String YMD_HMS = "yyyy-MM-dd HH:mm:ss";
 
 }

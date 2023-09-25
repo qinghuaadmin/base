@@ -28,7 +28,7 @@ public class TestCacheManager extends AbstractValueCacheManager<String, String> 
     }
 
     @Override
-    public String getKeyPrefix() {
+    public String getCacheNamePrefix() {
         return null;
     }
 

@@ -1,10 +1,10 @@
 package com.openkeji.normal.enums.redis;
 
-public interface AbstractKeyPrefix {
+public interface AbstractCacheNamePrefix {
     /**
      * 注册key前缀
      *
      * @return
      */
-    String getKeyPrefix();
+    String getCacheNamePrefix();
 }
