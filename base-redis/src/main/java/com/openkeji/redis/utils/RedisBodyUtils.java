@@ -4,6 +4,7 @@ package com.openkeji.redis.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -12,9 +13,11 @@ public class RedisBodyUtils {
 
     private static final int MAX_BODY_SIZE = 1024 * 1024;
 
+    public static final String ERROR_MSG_TPL = "The redis cache value is greater than 1M[{0}]";
+
     public static void validate(byte[] results, Object key) {
         if (results != null && results.length >= MAX_BODY_SIZE) {
-            log.info(new RuntimeException("redis中的[" + key + "]对应值大于1M").toString());
+            log.info(new RuntimeException(MessageFormat.format(ERROR_MSG_TPL, key)).toString());
         }
     }
 
@@ -28,7 +31,7 @@ public class RedisBodyUtils {
                 .mapToInt(e -> e.length)
                 .sum();
         if (total >= MAX_BODY_SIZE) {
-            log.info(new RuntimeException("redis中的[" + key + "]对应值大于1M").toString());
+            log.info(new RuntimeException(MessageFormat.format(ERROR_MSG_TPL, key)).toString());
         }
     }
 }
