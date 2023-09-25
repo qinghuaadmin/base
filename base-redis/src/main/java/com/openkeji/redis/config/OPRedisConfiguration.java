@@ -1,8 +1,6 @@
 package com.openkeji.redis.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.openkeji.redis.config.redis.LettuceConnectionConfiguration;
 import com.openkeji.redis.maker.RedisTemplateMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -20,6 +18,8 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import javax.annotation.PostConstruct;
+
 
 /**
  * @program: sino-msg-notice-center
@@ -36,6 +36,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @Import({LettuceConnectionConfiguration.class})
 public class OPRedisConfiguration {
 
+    @PostConstruct
+    public void init() {
+        log.info("[OPRedisConfiguration.init] init successful");
+    }
+
     @Bean
     @ConditionalOnMissingBean
     public ObjectMapper objectMapper() {
@@ -47,7 +52,7 @@ public class OPRedisConfiguration {
     @ConditionalOnMissingBean(name = "redisTemplate")
     @ConditionalOnSingleCandidate(RedisConnectionFactory.class)
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
-        log.debug("[OPRedisConfiguration.redisTemplate]-redisTemplate init  successful");
+        log.info("[OPRedisConfiguration.redisTemplate] init successful");
         return RedisTemplateMaker.makeRedisTemplate(redisConnectionFactory, objectMapper);
     }
 
@@ -55,7 +60,7 @@ public class OPRedisConfiguration {
     @ConditionalOnMissingBean(name = "stringRedisTemplate")
     @ConditionalOnSingleCandidate(RedisConnectionFactory.class)
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        log.debug("[OPRedisConfiguration.stringRedisTemplate]-stringRedisTemplate init  successful");
+        log.info("[OPRedisConfiguration.stringRedisTemplate] init successful");
         return RedisTemplateMaker.makeStringRedisTemplate(redisConnectionFactory);
     }
 }

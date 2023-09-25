@@ -1,4 +1,4 @@
-package com.openkeji.redis.config.redis;
+package com.openkeji.redis.config;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
@@ -50,13 +50,13 @@ public class LettuceConnectionConfiguration extends OPRedisConnectionConfigurati
 
     @PostConstruct
     public void init() {
-        log.info("[OPLettuceConnectionConfiguration.init] LettuceConnectionConfiguration init successful");
+        log.info("[OPLettuceConnectionConfiguration.init] init successful");
     }
 
-    public LettuceConnectionConfiguration(RedisProperties properties,
-                                          ObjectProvider<RedisStandaloneConfiguration> standaloneConfigurationProvider,
-                                          ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
-                                          ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
+    LettuceConnectionConfiguration(RedisProperties properties,
+                                   ObjectProvider<RedisStandaloneConfiguration> standaloneConfigurationProvider,
+                                   ObjectProvider<RedisSentinelConfiguration> sentinelConfigurationProvider,
+                                   ObjectProvider<RedisClusterConfiguration> clusterConfigurationProvider) {
         super(properties, standaloneConfigurationProvider, sentinelConfigurationProvider, clusterConfigurationProvider);
     }
 
@@ -156,7 +156,7 @@ public class LettuceConnectionConfiguration extends OPRedisConnectionConfigurati
     }
 
     private void customizeConfigurationFromUrl(LettuceClientConfiguration.LettuceClientConfigurationBuilder builder) {
-        ConnectionInfo connectionInfo = parseUrlOverride(getProperties().getUrl());
+        final ConnectionInfo connectionInfo = parseUrlOverride(getProperties().getUrl());
         if (connectionInfo.isUseSsl()) {
             builder.useSsl();
         }

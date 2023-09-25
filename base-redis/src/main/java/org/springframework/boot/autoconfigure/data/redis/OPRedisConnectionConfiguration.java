@@ -23,46 +23,41 @@ public class OPRedisConnectionConfiguration extends RedisConnectionConfiguration
         super(properties, standaloneConfigurationProvider, sentinelConfigurationProvider, clusterConfigurationProvider);
     }
 
-    /**
-     * 覆写 {@linkplain RedisConnectionConfiguration#parseUrl(String)}
-     * @param url
-     * @return
-     */
+
     protected ConnectionInfo parseUrlOverride(String url) {
         try {
             URI uri = new URI(url);
             String scheme = uri.getScheme();
             if (!"redis".equals(scheme) && !"rediss".equals(scheme)) {
                 throw new RedisUrlSyntaxException(url);
-            } else {
-                boolean useSsl = "rediss".equals(scheme);
-                String username = null;
-                String password = null;
-                if (uri.getUserInfo() != null) {
-                    String candidate = uri.getUserInfo();
-                    int index = candidate.indexOf(58);
-                    if (index >= 0) {
-                        username = candidate.substring(0, index);
-                        password = candidate.substring(index + 1);
-                    } else {
-                        password = candidate;
-                    }
-                }
-
-                return new ConnectionInfo(uri, useSsl, username, password);
             }
-        } catch (URISyntaxException var9) {
-            throw new RedisUrlSyntaxException(url, var9);
+            boolean useSsl = ("rediss".equals(scheme));
+            String username = null;
+            String password = null;
+            if (uri.getUserInfo() != null) {
+                String candidate = uri.getUserInfo();
+                int index = candidate.indexOf(':');
+                if (index >= 0) {
+                    username = candidate.substring(0, index);
+                    password = candidate.substring(index + 1);
+                } else {
+                    password = candidate;
+                }
+            }
+            return new ConnectionInfo(uri, useSsl, username, password);
+        } catch (URISyntaxException ex) {
+            throw new RedisUrlSyntaxException(url, ex);
         }
     }
 
-    /**
-     * fuxie
-     */
     public static class ConnectionInfo {
+
         private final URI uri;
+
         private final boolean useSsl;
+
         private final String username;
+
         private final String password;
 
         ConnectionInfo(URI uri, boolean useSsl, String username, String password) {
@@ -91,5 +86,6 @@ public class OPRedisConnectionConfiguration extends RedisConnectionConfiguration
         public String getPassword() {
             return this.password;
         }
+
     }
 }

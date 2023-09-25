@@ -8,7 +8,7 @@ package org.springframework.data.redis.core;
  */
 public class OPDefaultBoundZSetOperations<K, V> extends DefaultBoundZSetOperations<K, V> {
 
-    OPDefaultBoundZSetOperations(K key, RedisOperations<K, V> operations) {
+    public OPDefaultBoundZSetOperations(K key, RedisOperations<K, V> operations) {
         super(key, operations);
     }
 }

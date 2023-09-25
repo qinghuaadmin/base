@@ -16,12 +16,12 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import com.openkeji.redis.manager.OPRedisTemplate;
-import com.openkeji.redis.manager.OPStringRedisTemplate;
+import com.openkeji.normal.constants.CommonConstants;
+import com.openkeji.redis.template.OPRedisTemplate;
+import com.openkeji.redis.template.OPStringRedisTemplate;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -42,10 +42,10 @@ public class RedisTemplateMaker {
 
     public static JsonMapper makeObjectMapper() {
         final JavaTimeModule timeModule = new JavaTimeModule();
-        timeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        timeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        timeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        timeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        timeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern(CommonConstants.YMD)));
+        timeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern(CommonConstants.YMD)));
+        timeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(CommonConstants.YMD_HMS)));
+        timeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(CommonConstants.YMD_HMS)));
 
         return JsonMapper.builder()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, Boolean.FALSE)
@@ -64,11 +64,9 @@ public class RedisTemplateMaker {
 
         // Jackson2JsonRedisSerializer序列化
         final GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-
         // key序列化
         redisTemplate.setKeySerializer(RedisSerializer.string());
         redisTemplate.setHashKeySerializer(RedisSerializer.string());
-
         // value序列化
         redisTemplate.setValueSerializer(jsonSerializer);
         redisTemplate.setHashValueSerializer(jsonSerializer);
@@ -78,10 +76,6 @@ public class RedisTemplateMaker {
     }
 
     public static StringRedisTemplate makeStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        final OPStringRedisTemplate opStringRedisTemplate = new OPStringRedisTemplate(redisConnectionFactory);
-
-        final BoundValueOperations<String, String> aa = opStringRedisTemplate.boundValueOps("aa");
-
         return new OPStringRedisTemplate(redisConnectionFactory);
     }
 }

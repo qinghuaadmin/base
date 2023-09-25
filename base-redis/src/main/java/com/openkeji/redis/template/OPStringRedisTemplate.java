@@ -1,4 +1,4 @@
-package com.openkeji.redis.manager;
+package com.openkeji.redis.template;
 
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundValueOperations;

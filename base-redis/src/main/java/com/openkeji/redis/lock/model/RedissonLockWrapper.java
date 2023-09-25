@@ -28,7 +28,7 @@ public class RedissonLockWrapper implements AutoCloseable {
         if (locked) {
             try {
                 rLock.unlock();
-                log.info("[RedissonLockWrapper.close] close successful");
+                log.debug("[RedissonLockWrapper.close] close successful");
             } catch (Exception e) {
                 log.info("[RedissonLockWrapper.close] close error：", e);
             }

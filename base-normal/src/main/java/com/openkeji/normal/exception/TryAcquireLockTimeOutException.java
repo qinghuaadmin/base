@@ -1,4 +1,4 @@
-package com.openkeji.redis.exception;
+package com.openkeji.normal.exception;
 
 /**
  * @program: base

@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import javax.annotation.PostConstruct;
+
 /**
  * @program: base
  * @description:
@@ -23,6 +25,11 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({OPRedissonConfiguration.class})
 public class DistributedLockConfiguration {
+
+    @PostConstruct
+    public void init() {
+        log.info("[DistributedLockConfiguration.init] init successful");
+    }
 
     @Bean
     @ConditionalOnMissingBean
