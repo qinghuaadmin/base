@@ -3,6 +3,8 @@ package com.openkeji.redis.manager;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.OPDefaultHashOperations;
+import org.springframework.data.redis.core.OPDefaultSetOperations;
 import org.springframework.data.redis.core.ScanOptions;
 
 import java.io.Serializable;
@@ -20,8 +22,11 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public abstract class AbstractHashCacheManager<PK extends Serializable, HK, HV> extends AbstractCacheManager<PK> {
 
+    private final OPDefaultHashOperations<PK, HK, HV> defaultHashOps;
+
     public AbstractHashCacheManager(DataType dataType) {
         super(DataType.HASH);
+        defaultHashOps = new OPDefaultHashOperations<PK, HK, HV>(redisTemplate);
     }
 
     @Override

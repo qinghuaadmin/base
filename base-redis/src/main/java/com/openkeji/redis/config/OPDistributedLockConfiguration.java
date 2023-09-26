@@ -24,7 +24,7 @@ import javax.annotation.PostConstruct;
 @RefreshScope
 @Configuration
 @Import({OPRedissonConfiguration.class})
-public class DistributedLockConfiguration {
+public class OPDistributedLockConfiguration {
 
     @PostConstruct
     public void init() {

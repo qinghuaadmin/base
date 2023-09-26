@@ -3,6 +3,8 @@ package com.openkeji.redis.manager;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.core.BoundListOperations;
+import org.springframework.data.redis.core.OPDefaultHashOperations;
+import org.springframework.data.redis.core.OPDefaultListOperations;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -18,8 +20,11 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 public abstract class AbstractListCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
+    private final OPDefaultListOperations<PK, V> defaultListOps;
+
     public AbstractListCacheManager(DataType dataType) {
         super(DataType.LIST);
+        defaultListOps = new OPDefaultListOperations<PK, V>(redisTemplate);
     }
 
     /**

@@ -9,18 +9,17 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.BoundValueOperations;
+import org.springframework.data.redis.core.OPDefaultValueOperations;
 import org.springframework.data.redis.core.TimeoutUtils;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +30,8 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("unchecked")
 public abstract class AbstractValueCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
+
+    private final OPDefaultValueOperations<PK, V> defaultValueOps;
 
     @Autowired
     private DistributedLockTemplate distributedLockTemplate;
@@ -65,6 +66,15 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
 
     public AbstractValueCacheManager() {
         super(DataType.STRING);
+        defaultValueOps = new OPDefaultValueOperations<PK, V>(redisTemplate);
+    }
+
+    /**
+     * 获取Operations
+     */
+    protected BoundValueOperations<PK, V> boundKeyOps(PK id) {
+        final String fullCacheKey = this.makeFullCacheKey(id);
+        return redisTemplate.boundValueOps(fullCacheKey);
     }
 
     /**
@@ -83,19 +93,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
         return null;
     }
 
-    /**
-     * 获取Operations
-     */
-    protected BoundValueOperations<PK, V> boundKeyOps(PK id) {
-        final String fullCacheKey = this.makeFullCacheKey(id);
-        return redisTemplate.boundValueOps(fullCacheKey);
-    }
 
-    /**
-     * 从缓存读取数据
-     *
-     * @param id key
-     */
     final protected V get(PK id) {
         final BoundValueOperations<PK, V> operations = boundKeyOps(id);
         V object = operations.get();
@@ -136,35 +134,41 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
         return object;
     }
 
-    /**
-     * 批量查询
-     *
-     */
-    final protected List<V> getBatch(List<PK> ids) {
+    protected List<V> multiGetByGet(List<PK> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
 
-        // todo ForkJoinPool 批量查询
+       return ids.stream()
+               .map(this::get)
+               .collect(Collectors.toList());
     }
 
-    /**
+    final protected List<V> multiGet(List<PK> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+
+        final List<String> fullCacheKeyList = makeFullCacheKey(ids);
+        return defaultValueOps.multiGet((Collection<PK>) fullCacheKeyList);
+    }
+
+    /*    *//**
      * 批量查询
+     *
      * @param executor 线程池
-     */
+     *//*
     final protected List<V> getBatch(List<PK> ids, Executor executor) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
 
+        defaultValueOps.multiGet()
         // todo ForkJoinPool 批量查询
-    }
+    }*/
 
     /**
-     * 缓存穿透key
-     *
-     * @param id
-     * @return
+     * 拼接缓存穿透key
      */
     final protected String getPenetrateProtectKey(PK id) {
         return MessageFormat.format(PENETRATE_PROTECT_KEY_TPL, id);
