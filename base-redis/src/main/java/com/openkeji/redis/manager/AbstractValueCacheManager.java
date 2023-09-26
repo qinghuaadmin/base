@@ -78,7 +78,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     /**
      * 获取Operations
      */
-    protected BoundValueOperations<PK, V> getBoundKeyOperations(PK id) {
+    protected BoundValueOperations<PK, V> boundKeyOps(PK id) {
         final String fullCacheKey = this.makeFullCacheKey(id);
         return redisTemplate.boundValueOps(fullCacheKey);
     }
@@ -89,7 +89,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
      * @param id key
      */
     protected V get(PK id) {
-        final BoundValueOperations<PK, V> operations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> operations = boundKeyOps(id);
         V object = operations.get();
 
         String penetrateProtectKey = null;
@@ -151,7 +151,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
         if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
             set(id, value, getExpireTime(), getExpireTimeUnit());
         } else {
-            final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+            final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
             boundKeyOperations.set(value);
         }
     }
@@ -165,12 +165,12 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     }
 
     protected void set(PK id, V value, long timeout, TimeUnit unit) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         boundKeyOperations.set(value, timeout, unit);
     }
 
     protected void set(PK id, V value, long offset) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         boundKeyOperations.set(value, offset);
         if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
             // 更新过期时间
@@ -183,7 +183,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
         if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
             ifAbsent = setIfAbsent(id, value, getExpireTime(), getExpireTimeUnit());
         } else {
-            final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+            final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
             ifAbsent = Boolean.TRUE.equals(boundKeyOperations.setIfAbsent(value));
         }
         return ifAbsent;
@@ -197,7 +197,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     }
 
     protected Boolean setIfAbsent(PK id, V value, long timeout, TimeUnit unit) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.setIfAbsent(value, timeout, unit);
     }
 
@@ -206,7 +206,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
         if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
             ifPresent = setIfPresent(id, value, getExpireTime(), getExpireTimeUnit());
         } else {
-            final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+            final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
             ifPresent = Boolean.TRUE.equals(boundKeyOperations.setIfPresent(value));
         }
         return ifPresent;
@@ -220,32 +220,32 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     }
 
     protected Boolean setIfPresent(PK id, V value, long timeout, TimeUnit unit) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.setIfPresent(value, timeout, unit);
     }
 
     protected V getAndDelete(PK id) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.getAndDelete();
     }
 
     protected V getAndExpire(PK id, long timeout, TimeUnit unit) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.getAndExpire(timeout, unit);
     }
 
     protected V getAndExpire(PK id, Duration timeout) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.getAndExpire(timeout);
     }
 
     protected V getAndPersist(PK id) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.getAndPersist();
     }
 
     protected V getAndSet(PK id, V value) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.getAndSet(value);
     }
 
@@ -254,12 +254,12 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     }
 
     protected Long increment(PK id, long delta) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.increment(delta);
     }
 
     protected Double increment(PK id, double delta) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.increment(delta);
     }
 
@@ -268,22 +268,22 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     }
 
     protected Long decrement(PK id, long delta) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.decrement(delta);
     }
 
     protected Integer append(PK id, String value) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.append(value);
     }
 
     protected String get(PK id, long start, long end) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.get(start, end);
     }
 
     protected Long size(PK id) {
-        final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+        final BoundValueOperations<PK, V> boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.size();
     }
 }

@@ -57,7 +57,7 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
     /**
      * 获取BoundKeyOperations
      */
-    protected abstract BoundKeyOperations getBoundKeyOperations(PK id);
+    protected abstract BoundKeyOperations boundKeyOps(PK id);
 
     /**
      * 更新时，自动续期
@@ -68,7 +68,7 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
     }
 
     protected Boolean expire(PK id) {
-        final BoundKeyOperations boundKeyOperations = getBoundKeyOperations(id);
+        final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.expire(getExpireTime(), getExpireTimeUnit());
     }
 
@@ -81,7 +81,7 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
     }
 
     protected Boolean expire(PK id, long timeout, TimeUnit timeUnit) {
-        final BoundKeyOperations boundKeyOperations = getBoundKeyOperations(id);
+        final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.expire(timeout, timeUnit);
     }
 
@@ -90,12 +90,12 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
     }
 
     protected Boolean expireAt(PK id, Date date) {
-        final BoundKeyOperations boundKeyOperations = getBoundKeyOperations(id);
+        final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.expireAt(date);
     }
 
     protected Boolean persist(PK id) {
-        final BoundKeyOperations boundKeyOperations = getBoundKeyOperations(id);
+        final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.persist();
     }
 
