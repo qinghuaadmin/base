@@ -36,4 +36,6 @@ public class TestCacheManager extends AbstractValueCacheManager<String, String> 
         final boolean penetrateProtectEnable1 = testCacheManager.penetrateProtectEnable;
 
     }
+
+
 }

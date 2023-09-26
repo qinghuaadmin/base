@@ -36,11 +36,11 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     protected boolean penetrateProtectEnable = false;
 
     /**
-     * 穿透保护时间 单位:毫秒
+     * 穿透保护时间 单位:毫秒 不建议设置太久
      */
     @Setter
     @Getter
-    protected int penetrateProtectMillisecond = 5000;
+    protected int penetrateProtectMillisecond = 3000;
 
     /**
      * 穿透保护key
@@ -88,14 +88,14 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
      *
      * @param id key
      */
-    public V get(PK id) {
+    protected V get(PK id) {
         final BoundValueOperations<PK, V> operations = getBoundKeyOperations(id);
         V object = operations.get();
 
         String penetrateProtectKey = null;
         if (object == null) {
             if (Boolean.TRUE.equals(penetrateProtectEnable)) { // 缓存穿透保护
-                penetrateProtectKey = MessageFormat.format(PENETRATE_PROTECT_KEY_TPL, id);
+                penetrateProtectKey = getPenetrateProtectKey(id);
                 if (Boolean.TRUE.equals(redisTemplate.hasKey(penetrateProtectKey))) {
                     return null;
                 }
@@ -118,7 +118,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
         }
 
         if (object == null) {
-            if (Boolean.TRUE.equals(penetrateProtectEnable)) { // 赋占位值
+            if (Boolean.TRUE.equals(penetrateProtectEnable)) { // 穿透保护 赋占位值
                 assert penetrateProtectKey != null;
                 redisTemplate.opsForValue().set(penetrateProtectKey, 1, penetrateProtectMillisecond, TimeUnit.MILLISECONDS);
             }
@@ -129,27 +129,34 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
     }
 
     /**
+     * 缓存穿透key
+     *
+     * @param id
+     * @return
+     */
+    final protected String getPenetrateProtectKey(PK id) {
+        return MessageFormat.format(PENETRATE_PROTECT_KEY_TPL, id);
+    }
+
+    /**
      * 删除缓存穿透key
      *
      * @param id key
      */
     final protected void deletePenetrateProtect(PK id) {
-        final String penetrateProtectKey = MessageFormat.format(PENETRATE_PROTECT_KEY_TPL, id);
-        redisTemplate.delete(penetrateProtectKey);
+        redisTemplate.delete(getPenetrateProtectKey(id));
     }
 
-    /**
-     * 更新时，自动续期
-     */
-    protected boolean updateExpireTimeWhenUpdate() {
-        return Boolean.TRUE;
+    protected void set(PK id, V value) {
+        if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
+            set(id, value, getExpireTime(), getExpireTimeUnit());
+        } else {
+            final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+            boundKeyOperations.set(value);
+        }
     }
 
-    public void set(PK id, V value) {
-        set(id, value, getExpireTime(), getExpireTimeUnit());
-    }
-
-    public void set(PK id, V value, Duration timeout) {
+    protected void set(PK id, V value, Duration timeout) {
         if (TimeoutUtils.hasMillis(timeout)) {
             set(id, value, timeout.toMillis(), TimeUnit.MILLISECONDS);
         } else {
@@ -157,126 +164,125 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
         }
     }
 
-    public void set(PK id, V value, long timeout, TimeUnit unit) {
+    protected void set(PK id, V value, long timeout, TimeUnit unit) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
-        if (updateExpireTimeWhenUpdate()) {
-            boundKeyOperations.set(value, timeout, unit);
-        } else {
-            if (Boolean.TRUE.equals(hasKey(id))) {
-                boundKeyOperations.set(value);
-            } else {
-                boundKeyOperations.set(value, timeout, unit);
-            }
-        }
-        // 更新之后,删除缓存穿透key
-        deletePenetrateProtect(id);
+        boundKeyOperations.set(value, timeout, unit);
     }
 
-    public void set(PK id, V value, long offset) {
+    protected void set(PK id, V value, long offset) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         boundKeyOperations.set(value, offset);
-        // 更新过期时间
-        boundKeyOperations.expire(getExpireTime(), getExpireTimeUnit());
-        // 更新之后,删除缓存穿透key
-        deletePenetrateProtect(id);
+        if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
+            // 更新过期时间
+            boundKeyOperations.expire(getExpireTime(), getExpireTimeUnit());
+        }
     }
 
-    public Boolean setIfAbsent(PK id, V value) {
-        return setIfAbsent(id, value, getExpireTime(), getExpireTimeUnit());
+    protected Boolean setIfAbsent(PK id, V value) {
+        boolean ifAbsent;
+        if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
+            ifAbsent = setIfAbsent(id, value, getExpireTime(), getExpireTimeUnit());
+        } else {
+            final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+            ifAbsent = Boolean.TRUE.equals(boundKeyOperations.setIfAbsent(value));
+        }
+        return ifAbsent;
     }
 
-    public Boolean setIfAbsent(PK id, V value, Duration timeout) {
+    protected Boolean setIfAbsent(PK id, V value, Duration timeout) {
         if (TimeoutUtils.hasMillis(timeout)) {
             return setIfAbsent(id, value, timeout.toMillis(), TimeUnit.MILLISECONDS);
         }
         return setIfAbsent(id, value, timeout.getSeconds(), TimeUnit.SECONDS);
     }
 
-    public Boolean setIfAbsent(PK id, V value, long timeout, TimeUnit unit) {
+    protected Boolean setIfAbsent(PK id, V value, long timeout, TimeUnit unit) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
-        final Boolean ifAbsent = boundKeyOperations.setIfAbsent(value, timeout, unit);
-        if (Boolean.TRUE.equals(ifAbsent)) {
-            // 更新之后,删除缓存穿透key
-            deletePenetrateProtect(id);
+        return boundKeyOperations.setIfAbsent(value, timeout, unit);
+    }
+
+    protected Boolean setIfPresent(PK id, V value) {
+        boolean ifPresent;
+        if (Boolean.TRUE.equals(updateExpireTimeWhenUpdate())) {
+            ifPresent = setIfPresent(id, value, getExpireTime(), getExpireTimeUnit());
+        } else {
+            final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
+            ifPresent = Boolean.TRUE.equals(boundKeyOperations.setIfPresent(value));
         }
-        return ifAbsent;
+        return ifPresent;
     }
 
-    public Boolean setIfPresent(PK id, V value) {
-        return setIfPresent(id, value, getExpireTime(), getExpireTimeUnit());
-    }
-
-    public Boolean setIfPresent(PK id, V value, Duration timeout) {
+    protected Boolean setIfPresent(PK id, V value, Duration timeout) {
         if (TimeoutUtils.hasMillis(timeout)) {
             return setIfPresent(id, value, timeout.toMillis(), TimeUnit.MILLISECONDS);
         }
         return setIfPresent(id, value, timeout.getSeconds(), TimeUnit.SECONDS);
     }
 
-    public Boolean setIfPresent(PK id, V value, long timeout, TimeUnit unit) {
+    protected Boolean setIfPresent(PK id, V value, long timeout, TimeUnit unit) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.setIfPresent(value, timeout, unit);
     }
 
-    public V getAndDelete(PK id) {
+    protected V getAndDelete(PK id) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.getAndDelete();
     }
 
-    public V getAndExpire(PK id, long timeout, TimeUnit unit) {
+    protected V getAndExpire(PK id, long timeout, TimeUnit unit) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.getAndExpire(timeout, unit);
     }
 
-    public V getAndExpire(PK id, Duration timeout) {
+    protected V getAndExpire(PK id, Duration timeout) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.getAndExpire(timeout);
     }
 
-    public V getAndPersist(PK id) {
+    protected V getAndPersist(PK id) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.getAndPersist();
     }
 
-    public V getAndSet(PK id, V value) {
+    protected V getAndSet(PK id, V value) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.getAndSet(value);
     }
 
-    public Long increment(PK id) {
+    protected Long increment(PK id) {
         return increment(id, 1);
     }
 
-    public Long increment(PK id, long delta) {
+    protected Long increment(PK id, long delta) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.increment(delta);
     }
 
-    public Double increment(PK id, double delta) {
+    protected Double increment(PK id, double delta) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.increment(delta);
     }
 
-    public Long decrement(PK id) {
+    protected Long decrement(PK id) {
         return decrement(id, 1);
     }
 
-    public Long decrement(PK id, long delta) {
+    protected Long decrement(PK id, long delta) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.decrement(delta);
     }
 
-    public Integer append(PK id, String value) {
+    protected Integer append(PK id, String value) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.append(value);
     }
 
-    public String get(PK id, long start, long end) {
+    protected String get(PK id, long start, long end) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.get(start, end);
     }
 
-    public Long size(PK id) {
+    protected Long size(PK id) {
         final BoundValueOperations<PK, V> boundKeyOperations = getBoundKeyOperations(id);
         return boundKeyOperations.size();
     }
