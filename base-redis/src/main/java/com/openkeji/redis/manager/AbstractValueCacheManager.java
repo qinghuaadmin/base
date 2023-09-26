@@ -5,6 +5,7 @@ import com.openkeji.normal.enums.redis.CommonDistributedLockCacheNamePrefixEnum;
 import com.openkeji.redis.lock.DistributedLockTemplate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.BoundValueOperations;
@@ -13,7 +14,14 @@ import org.springframework.data.redis.core.TimeoutUtils;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * @program: base
@@ -88,7 +96,7 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
      *
      * @param id key
      */
-    protected V get(PK id) {
+    final protected V get(PK id) {
         final BoundValueOperations<PK, V> operations = boundKeyOps(id);
         V object = operations.get();
 
@@ -126,6 +134,30 @@ public abstract class AbstractValueCacheManager<PK extends Serializable, V> exte
             operations.set(object, expireTime, expireTimeUnit);
         }
         return object;
+    }
+
+    /**
+     * 批量查询
+     *
+     */
+    final protected List<V> getBatch(List<PK> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+
+        // todo ForkJoinPool 批量查询
+    }
+
+    /**
+     * 批量查询
+     * @param executor 线程池
+     */
+    final protected List<V> getBatch(List<PK> ids, Executor executor) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+
+        // todo ForkJoinPool 批量查询
     }
 
     /**
