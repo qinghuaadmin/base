@@ -31,9 +31,10 @@ public class DistributedLockTemplate {
 
     /**
      * 非公平锁
+     *
      * @param lockKeyPrefix 锁前缀
-     * @param key 锁key
-     * @param function 锁代码块
+     * @param key           锁key
+     * @param function      锁代码块
      * @return 执行结果
      */
     public <T> T executeWithRLock(AbstractCacheNamePrefix lockKeyPrefix,
@@ -44,9 +45,10 @@ public class DistributedLockTemplate {
 
     /**
      * 公平锁
+     *
      * @param lockKeyPrefix 锁前缀
-     * @param key 锁key
-     * @param function 锁代码块
+     * @param key           锁key
+     * @param function      锁代码块
      * @return 执行结果
      */
     public <T> T executeWithFairRLock(AbstractCacheNamePrefix lockKeyPrefix,
@@ -56,7 +58,7 @@ public class DistributedLockTemplate {
     }
 
     public <T> T execute(AbstractCacheNamePrefix lockKeyPrefix, String key, boolean fair, long time, TimeUnit unit, Function<T> function) {
-        final String lockKey = MessageFormat.format("{0}:{1}", lockKeyPrefix.getCacheNamePrefix(), key);
+        final String lockKey = lockKeyPrefix.getCacheNamePrefix() + key;
         try (RedissonLockWrapper rLock = distributedLockFactory.getRLock(lockKey, fair)) {
             final boolean tryAcquire = rLock.tryAcquire(time, unit);
             if (!tryAcquire) {
