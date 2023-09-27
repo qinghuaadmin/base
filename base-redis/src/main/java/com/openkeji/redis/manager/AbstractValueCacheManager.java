@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public abstract class AbstractValueCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
+    @Getter
     public final OPDefaultValueOperations<PK, V> defaultValueOps;
 
     @Autowired

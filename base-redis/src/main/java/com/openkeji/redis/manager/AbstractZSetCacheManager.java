@@ -1,5 +1,6 @@
 package com.openkeji.redis.manager;
 
+import lombok.Getter;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.BoundZSetOperations;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 public abstract class AbstractZSetCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
+    @Getter
     public final OPDefaultZSetOperations<PK, V> defaultZSetOps;
 
     public AbstractZSetCacheManager() {

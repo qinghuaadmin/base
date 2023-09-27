@@ -1,5 +1,6 @@
 package com.openkeji.redis.manager;
 
+import lombok.Getter;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisListCommands;
 import org.springframework.data.redis.core.BoundListOperations;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 public abstract class AbstractListCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
+    @Getter
     public final OPDefaultListOperations<PK, V> defaultListOps;
 
     public AbstractListCacheManager() {

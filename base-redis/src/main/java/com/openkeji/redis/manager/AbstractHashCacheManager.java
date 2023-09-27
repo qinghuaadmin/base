@@ -1,5 +1,6 @@
 package com.openkeji.redis.manager;
 
+import lombok.Getter;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.Cursor;
@@ -21,6 +22,7 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public abstract class AbstractHashCacheManager<PK extends Serializable, HK, HV> extends AbstractCacheManager<PK> {
 
+    @Getter
     public final OPDefaultHashOperations<PK, HK, HV> defaultHashOps;
 
     public AbstractHashCacheManager() {

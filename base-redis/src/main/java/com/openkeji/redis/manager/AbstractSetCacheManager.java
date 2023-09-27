@@ -1,5 +1,6 @@
 package com.openkeji.redis.manager;
 
+import lombok.Getter;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.Cursor;
@@ -21,6 +22,7 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public abstract class AbstractSetCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
+    @Getter
     public final OPDefaultSetOperations<PK, V> defaultSetOps;
 
     public AbstractSetCacheManager() {
