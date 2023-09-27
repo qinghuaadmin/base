@@ -67,12 +67,12 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
         return Boolean.FALSE;
     }
 
-    protected Boolean expire(PK id) {
+    final public Boolean expire(PK id) {
         final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.expire(getExpireTime(), getExpireTimeUnit());
     }
 
-    protected Boolean expire(PK id, Duration timeout) {
+    final public Boolean expire(PK id, Duration timeout) {
         if (TimeoutUtils.hasMillis(timeout)) {
             return expire(id, timeout.toMillis(), TimeUnit.MILLISECONDS);
         } else {
@@ -80,41 +80,46 @@ public abstract class AbstractCacheManager<PK extends Serializable> implements A
         }
     }
 
-    protected Boolean expire(PK id, long timeout, TimeUnit timeUnit) {
+    final public Boolean expire(PK id, long timeout, TimeUnit timeUnit) {
         final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.expire(timeout, timeUnit);
     }
 
-    protected Boolean expireAt(PK id, Instant expireAt) {
+    final public Boolean expireAt(PK id, Instant expireAt) {
         return expireAt(id, Date.from(expireAt));
     }
 
-    protected Boolean expireAt(PK id, Date date) {
+    final public Boolean expireAt(PK id, Date date) {
         final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.expireAt(date);
     }
 
-    protected Boolean persist(PK id) {
+    final public Boolean persist(PK id) {
         final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
         return boundKeyOperations.persist();
     }
 
-    final protected void delete(PK id) {
+    final public Long getExpire(PK id) { // 单位秒
+        final BoundKeyOperations boundKeyOperations = boundKeyOps(id);
+        return boundKeyOperations.getExpire();
+    }
+
+    final public void delete(PK id) {
         final String fullCacheKey = makeFullCacheKey(id);
         redisTemplate.delete(fullCacheKey);
     }
 
-    final protected boolean hasKey(PK id) {
+    final public boolean hasKey(PK id) {
         final String fullCacheKey = makeFullCacheKey(id);
         return Boolean.TRUE.equals(redisTemplate.hasKey(fullCacheKey));
     }
 
-    final protected String makeFullCacheKey(PK id) {
+    final public String makeFullCacheKey(PK id) {
         final String prefix = getCacheNamePrefix();
         return prefix + id;
     }
 
-    final protected List<String> makeFullCacheKey(Collection<PK> list) {
+    final public List<String> makeFullCacheKey(Collection<PK> list) {
         if (CollectionUtils.isEmpty(list)) {
             return new ArrayList<>();
         }

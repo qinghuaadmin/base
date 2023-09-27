@@ -4,7 +4,6 @@ import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.BoundZSetOperations;
 import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.OPDefaultHashOperations;
 import org.springframework.data.redis.core.OPDefaultZSetOperations;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -25,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 public abstract class AbstractZSetCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
-    private final OPDefaultZSetOperations<PK, V> defaultZSetOps;
+    public final OPDefaultZSetOperations<PK, V> defaultZSetOps;
 
     public AbstractZSetCacheManager(DataType dataType) {
         super(DataType.ZSET);
@@ -33,7 +32,7 @@ public abstract class AbstractZSetCacheManager<PK extends Serializable, V> exten
     }
 
     @Override
-    protected BoundZSetOperations<PK, V> boundKeyOps(PK id) {
+    public BoundZSetOperations<PK, V> boundKeyOps(PK id) {
         final String fullCacheKey = makeFullCacheKey(id);
         return redisTemplate.boundZSetOps(fullCacheKey);
     }

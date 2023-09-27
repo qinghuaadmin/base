@@ -4,7 +4,6 @@ import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.OPDefaultSetOperations;
-import org.springframework.data.redis.core.OPDefaultValueOperations;
 import org.springframework.data.redis.core.ScanOptions;
 
 import java.io.Serializable;
@@ -22,7 +21,7 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public abstract class AbstractSetCacheManager<PK extends Serializable, V> extends AbstractCacheManager<PK> {
 
-    private final OPDefaultSetOperations<PK, V> defaultSetOps;
+    public final OPDefaultSetOperations<PK, V> defaultSetOps;
 
     public AbstractSetCacheManager(DataType dataType) {
         super(DataType.SET);
@@ -30,7 +29,7 @@ public abstract class AbstractSetCacheManager<PK extends Serializable, V> extend
     }
 
     @Override
-    protected BoundSetOperations<PK, V> boundKeyOps(PK id) {
+    public BoundSetOperations<PK, V> boundKeyOps(PK id) {
         final String fullCacheKey = makeFullCacheKey(id);
         return redisTemplate.boundSetOps(fullCacheKey);
     }
