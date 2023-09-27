@@ -29,7 +29,7 @@ public abstract class AbstractHashCacheManager<PK extends Serializable, HK, HV> 
     }
 
     @Override
-    protected BoundHashOperations<PK, HK, HV> boundKeyOps(PK id) {
+    public BoundHashOperations<PK, HK, HV> boundKeyOps(PK id) {
         final String fullCacheKey = this.makeFullCacheKey(id);
         return redisTemplate.boundHashOps(fullCacheKey);
     }
