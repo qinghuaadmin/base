@@ -23,7 +23,7 @@ public abstract class AbstractSetCacheManager<PK extends Serializable, V> extend
 
     public final OPDefaultSetOperations<PK, V> defaultSetOps;
 
-    public AbstractSetCacheManager(DataType dataType) {
+    public AbstractSetCacheManager() {
         super(DataType.SET);
         defaultSetOps = new OPDefaultSetOperations<PK, V>(redisTemplate);
     }

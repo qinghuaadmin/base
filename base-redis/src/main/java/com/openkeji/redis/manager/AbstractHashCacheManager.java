@@ -23,7 +23,7 @@ public abstract class AbstractHashCacheManager<PK extends Serializable, HK, HV> 
 
     public final OPDefaultHashOperations<PK, HK, HV> defaultHashOps;
 
-    public AbstractHashCacheManager(DataType dataType) {
+    public AbstractHashCacheManager() {
         super(DataType.HASH);
         defaultHashOps = new OPDefaultHashOperations<PK, HK, HV>(redisTemplate);
     }

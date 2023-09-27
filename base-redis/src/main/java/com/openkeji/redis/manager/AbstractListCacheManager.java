@@ -21,7 +21,7 @@ public abstract class AbstractListCacheManager<PK extends Serializable, V> exten
 
     public final OPDefaultListOperations<PK, V> defaultListOps;
 
-    public AbstractListCacheManager(DataType dataType) {
+    public AbstractListCacheManager() {
         super(DataType.LIST);
         defaultListOps = new OPDefaultListOperations<PK, V>(redisTemplate);
     }

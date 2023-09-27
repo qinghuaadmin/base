@@ -26,7 +26,7 @@ public abstract class AbstractZSetCacheManager<PK extends Serializable, V> exten
 
     public final OPDefaultZSetOperations<PK, V> defaultZSetOps;
 
-    public AbstractZSetCacheManager(DataType dataType) {
+    public AbstractZSetCacheManager() {
         super(DataType.ZSET);
         defaultZSetOps = new OPDefaultZSetOperations<PK, V>(redisTemplate);
     }
