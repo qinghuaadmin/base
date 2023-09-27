@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -50,17 +51,17 @@ public class OPRedisConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "redisTemplate")
-    @ConditionalOnSingleCandidate(RedisConnectionFactory.class)
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
+    //@ConditionalOnSingleCandidate(RedisConnectionFactory.class)
+    public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory lettuceConnectionFactory, ObjectMapper objectMapper) {
         log.info("[OPRedisConfiguration.redisTemplate] init successful");
-        return RedisTemplateMaker.makeRedisTemplate(redisConnectionFactory, objectMapper);
+        return RedisTemplateMaker.makeRedisTemplate(lettuceConnectionFactory, objectMapper);
     }
 
     @Bean
     @ConditionalOnMissingBean(name = "stringRedisTemplate")
-    @ConditionalOnSingleCandidate(RedisConnectionFactory.class)
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    //@ConditionalOnSingleCandidate(RedisConnectionFactory.class)
+    public StringRedisTemplate stringRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
         log.info("[OPRedisConfiguration.stringRedisTemplate] init successful");
-        return RedisTemplateMaker.makeStringRedisTemplate(redisConnectionFactory);
+        return RedisTemplateMaker.makeStringRedisTemplate(lettuceConnectionFactory);
     }
 }
