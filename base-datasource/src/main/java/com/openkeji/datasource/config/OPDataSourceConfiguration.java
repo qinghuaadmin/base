@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -16,6 +17,7 @@ import javax.annotation.PostConstruct;
  * @create: 2023-10-08-10
  */
 @Slf4j
+@RefreshScope
 @Configuration
 @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 @Import({OPDruidDataSourceConfiguration.class, MybatisPlusAutoConfiguration.class})
