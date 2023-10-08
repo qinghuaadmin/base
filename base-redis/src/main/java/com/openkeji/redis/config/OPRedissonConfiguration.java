@@ -30,7 +30,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.util.ReflectionUtils;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -53,11 +52,6 @@ import java.util.List;
 @EnableAutoConfiguration(exclude = {RedissonAutoConfiguration.class})
 @Import({OPRedisConfiguration.class})
 public class OPRedissonConfiguration {
-
-    @PostConstruct
-    public void init() {
-        log.info("[OPRedissonConfiguration.init] init successful");
-    }
 
     private static final String REDIS_PROTOCOL_PREFIX = "redis://";
     private static final String REDISS_PROTOCOL_PREFIX = "rediss://";

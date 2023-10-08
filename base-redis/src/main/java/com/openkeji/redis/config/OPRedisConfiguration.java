@@ -7,19 +7,15 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-
-import javax.annotation.PostConstruct;
 
 
 /**
@@ -37,23 +33,17 @@ import javax.annotation.PostConstruct;
 @Import({LettuceConnectionConfiguration.class})
 public class OPRedisConfiguration {
 
-    @PostConstruct
-    public void init() {
-        log.info("[OPRedisConfiguration.init] init successful");
-    }
-
     @Bean
     @ConditionalOnMissingBean
     public ObjectMapper objectMapper() {
         return RedisTemplateMaker.makeObjectMapper();
     }
 
-
     @Bean
     @ConditionalOnMissingBean(name = "redisTemplate")
     //@ConditionalOnSingleCandidate(RedisConnectionFactory.class)
     public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory lettuceConnectionFactory, ObjectMapper objectMapper) {
-        log.info("[OPRedisConfiguration.redisTemplate] init successful");
+        log.info("[OPRedisConfiguration.redisTemplate] init");
         return RedisTemplateMaker.makeRedisTemplate(lettuceConnectionFactory, objectMapper);
     }
 
@@ -61,7 +51,7 @@ public class OPRedisConfiguration {
     @ConditionalOnMissingBean(name = "stringRedisTemplate")
     //@ConditionalOnSingleCandidate(RedisConnectionFactory.class)
     public StringRedisTemplate stringRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
-        log.info("[OPRedisConfiguration.stringRedisTemplate] init successful");
+        log.info("[OPRedisConfiguration.stringRedisTemplate] init");
         return RedisTemplateMaker.makeStringRedisTemplate(lettuceConnectionFactory);
     }
 }

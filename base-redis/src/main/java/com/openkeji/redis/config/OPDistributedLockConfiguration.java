@@ -11,35 +11,29 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.annotation.PostConstruct;
-
 /**
  * @program: base
  * @description:
  * @author: houqh
  * @create: 2023-09-19
  */
-
 @Slf4j
 @RefreshScope
 @Configuration
 @Import({OPRedissonConfiguration.class})
 public class OPDistributedLockConfiguration {
 
-    @PostConstruct
-    public void init() {
-        log.info("[DistributedLockConfiguration.init] init successful");
-    }
-
     @Bean
     @ConditionalOnMissingBean
     public DistributedLockFactory distributedLockFactory(RedissonClient redissonClient) {
+        log.info("[OPDistributedLockConfiguration.distributedLockFactory] init");
         return new DistributedLockFactoryImpl(redissonClient);
     }
 
     @Bean
     @ConditionalOnMissingBean
     public DistributedLockTemplate distributedLockTemplate(DistributedLockFactory distributedLockFactory) {
+        log.info("[OPDistributedLockConfiguration.distributedLockTemplate] init");
         return new DistributedLockTemplate(distributedLockFactory);
     }
 }
