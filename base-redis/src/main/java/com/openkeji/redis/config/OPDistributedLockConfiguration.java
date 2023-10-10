@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
  */
 @Slf4j
 @RefreshScope
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import({OPRedissonConfiguration.class})
 public class OPDistributedLockConfiguration {
 
