@@ -461,7 +461,5 @@ public enum HttpStatus {
         public int value() {
             return this.value;
         }
-
     }
-
 }
